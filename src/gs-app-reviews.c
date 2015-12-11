@@ -35,17 +35,15 @@ G_DEFINE_TYPE (GsAppReviews, gs_app_reviews, G_TYPE_OBJECT)
  * @klass: The GsAppReviewClass
  **/
 static void
-gs_app_reviews_class_init (GsAppReviewClass *klass)
+gs_app_reviews_class_init (GsAppReviewsClass *klass)
 {
-	GParamSpec *pspec;
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 }
 
 /**
  * gs_app_reviews_init:
  **/
 static void
-gs_app_review_init (GsAppReviews *reviews)
+gs_app_reviews_init (GsAppReviews *reviews)
 {
 }
 

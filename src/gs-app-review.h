@@ -58,7 +58,7 @@ void		 gs_app_review_set_date			(GsAppReview	*review,
 						 guint64	date);
 
 void		 gs_app_review_set_is_useful			(GsAppReview	*review,
-						 gboolen	is_useful);
+						 gboolean	is_useful);
 
 void		 gs_app_review_mark_innapropriate			(GsAppReview	*review);
 
