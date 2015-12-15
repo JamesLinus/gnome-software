@@ -98,6 +98,11 @@
 .application-details-description {
 }
 
+.application-reviews-title {
+	font-weight: bold;
+	font-size: 14px;
+}
+
 .error-label {
 	text-shadow: none;
 }
