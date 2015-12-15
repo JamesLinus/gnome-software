@@ -40,6 +40,10 @@ struct _GsReviewWidgetClass
 GtkWidget	*gs_review_widget_new			(void);
 void		 gs_review_widget_set_rating		(GsReviewWidget	*review,
 							 gint		 rating);
+void		 gs_review_widget_set_author		(GsReviewWidget	*review,
+							 const gchar	*author);
+void		 gs_review_widget_set_date		(GsReviewWidget	*review,
+							 GDateTime	*date);
 void		 gs_review_widget_set_summary		(GsReviewWidget	*review,
 							 const gchar	*summary);
 void		 gs_review_widget_set_text		(GsReviewWidget	*review,

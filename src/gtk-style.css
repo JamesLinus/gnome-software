@@ -103,6 +103,10 @@
 	font-size: 14px;
 }
 
+.review-summary {
+	font-weight: bold;
+}
+
 .error-label {
 	text-shadow: none;
 }

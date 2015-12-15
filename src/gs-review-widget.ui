@@ -6,10 +6,13 @@
     <child>
       <object class="GtkGrid" id="grid">
         <property name="visible">True</property>
+        <property name="row-spacing">12</property>
+        <property name="column-spacing">12</property>
         <child>
           <object class="GsStarWidget" id="stars">
             <property name="visible">True</property>
             <property name="halign">start</property>
+            <property name="sensitive">False</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
@@ -21,6 +24,11 @@
         <child>
           <object class="GtkLabel" id="summary_label">
             <property name="visible">True</property>
+            <property name="expand">True</property>
+            <property name="halign">start</property>
+            <style>
+              <class name="review-summary"/>
+            </style>
           </object>
           <packing>
             <property name="left-attach">1</property>
@@ -32,6 +40,10 @@
         <child>
           <object class="GtkLabel" id="author_label">
             <property name="visible">True</property>
+            <property name="halign">end</property>
+            <style>
+              <class name="dim-label"/>
+            </style>
           </object>
           <packing>
             <property name="left-attach">2</property>
@@ -43,6 +55,7 @@
         <child>
           <object class="GtkLabel" id="text_label">
             <property name="visible">True</property>
+            <property name="halign">start</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
