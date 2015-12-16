@@ -33,7 +33,7 @@ UI_FILES =						\
 	category-tile.ui				\
 	feature-tile.ui					\
 	gnome-software.ui				\
-	gs-app-addon-row.sui				\
+	gs-app-addon-row.ui				\
 	gs-app-row.ui					\
 	gs-app-review-row.ui				\
 	gs-first-run-dialog.ui				\
