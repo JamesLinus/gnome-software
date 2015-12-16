@@ -50,7 +50,7 @@ G_DEFINE_TYPE (GsAppReview, gs_app_review, G_TYPE_OBJECT)
 
 /**
  * gs_app_review_get_summary:
- **/
+ */
 const gchar *
 gs_app_review_get_summary (GsAppReview *review)
 {
@@ -92,7 +92,7 @@ gs_app_review_set_text (GsAppReview *review, const gchar *text)
 
 /**
  * gs_app_review_get_rating:
- **/
+ */
 gint
 gs_app_review_get_rating (GsAppReview *review)
 {
@@ -174,9 +174,6 @@ gs_app_review_set_date (GsAppReview *review, GDateTime *date)
 		review->date = g_date_time_ref (date);
 }
 
-/**
- * gs_app_review_get_property:
- */
 static void
 gs_app_review_get_property (GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
 {
@@ -207,9 +204,6 @@ gs_app_review_get_property (GObject *object, guint prop_id, GValue *value, GPara
 	}
 }
 
-/**
- * gs_app_review_set_property:
- */
 static void
 gs_app_review_set_property (GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
 {
@@ -321,9 +315,6 @@ gs_app_review_class_init (GsAppReviewClass *klass)
 	g_object_class_install_property (object_class, PROP_DATE, pspec);
 }
 
-/**
- * gs_app_review_init:
- **/
 static void
 gs_app_review_init (GsAppReview *review)
 {
@@ -333,7 +324,7 @@ gs_app_review_init (GsAppReview *review)
 /**
  * gs_app_review_new:
  *
- * Return value: a new GsAppReview object.
+ * Return value: a new #GsAppReview object.
  **/
 GsAppReview *
 gs_app_review_new (void)
