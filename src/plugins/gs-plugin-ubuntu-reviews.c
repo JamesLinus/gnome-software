@@ -142,7 +142,7 @@ parse_review (JsonNode *node)
 	gs_app_review_set_version (review, json_object_get_string_member (object, "version"));
 	star_rating = json_object_get_int_member (object, "rating");
 	if (star_rating > 0)
-		gs_app_review_set_rating (review, star_rating * 20 - 10);
+		gs_app_review_set_rating (review, star_rating * 20);
 	gs_app_review_set_date (review, parse_date_time (json_object_get_string_member (object, "date_created")));
 
 	return review;
