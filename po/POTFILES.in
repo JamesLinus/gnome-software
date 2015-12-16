@@ -7,6 +7,8 @@ src/gnome-software-local-file.desktop.in
 src/gs-app-folder-dialog.c
 src/gs-application.c
 src/gs-app-addon-row.c
+src/gs-app-review-row.c
+[type: gettext/glade]src/gs-app-review-row.ui
 src/gs-app.c
 src/gs-app-row.c
 src/gs-app-tile.c
@@ -22,8 +24,6 @@ src/gs-offline-updates.c
 src/gs-page.c
 src/gs-plugin-loader.c
 src/gs-popular-tile.c
-src/gs-review-widget.c
-[type: gettext/glade]src/gs-review-widget.ui
 src/gs-screenshot-image.c
 src/gs-shell.c
 src/gs-shell-extras.c

@@ -35,6 +35,7 @@
 #include "gs-screenshot-image.h"
 #include "gs-progress-button.h"
 #include "gs-star-widget.h"
+#include "gs-app-review-row.h"
 
 typedef enum {
 	GS_SHELL_DETAILS_STATE_LOADING,
@@ -85,6 +86,7 @@ struct _GsShellDetails
 	GtkWidget		*label_details_version_value;
 	GtkWidget		*label_pending;
 	GtkWidget		*list_box_addons;
+	GtkWidget		*list_box_reviews;
 	GtkWidget		*scrolledwindow_details;
 	GtkWidget		*spinner_details;
 	GtkWidget		*spinner_install_remove;
@@ -861,6 +863,29 @@ gs_shell_details_refresh_addons (GsShellDetails *self)
 				  G_CALLBACK (gs_shell_details_addon_selected_cb),
 				  self);
 	}
+
+}
+
+static void
+gs_shell_details_refresh_reviews (GsShellDetails *self)
+{
+	GPtrArray *reviews;
+	guint i;
+
+	gs_container_remove_all (GTK_CONTAINER (self->list_box_reviews));
+
+	reviews = gs_app_get_reviews (self->app);
+	for (i = 0; i < reviews->len; i++) {
+		GsAppReview *review;
+		GtkWidget *row;
+
+		review = g_ptr_array_index (reviews, i);
+
+		row = gs_app_review_row_new (review);
+
+		gtk_container_add (GTK_CONTAINER (self->list_box_reviews), row);
+		gtk_widget_show (row);
+	}
 }
 
 /**
@@ -893,6 +918,7 @@ gs_shell_details_app_refine_cb (GObject *source,
 
 	gs_shell_details_refresh_screenshots (self);
 	gs_shell_details_refresh_addons (self);
+	gs_shell_details_refresh_reviews (self);
 	gs_shell_details_refresh_all (self);
 	gs_shell_details_set_state (self, GS_SHELL_DETAILS_STATE_READY);
 }
@@ -963,6 +989,7 @@ gs_shell_details_filename_to_app_cb (GObject *source,
 	gs_shell_details_switch_to (self);
 	gs_shell_details_refresh_screenshots (self);
 	gs_shell_details_refresh_addons (self);
+	gs_shell_details_refresh_reviews (self);
 	gs_shell_details_refresh_all (self);
 	gs_shell_details_set_state (self, GS_SHELL_DETAILS_STATE_READY);
 }
@@ -1347,6 +1374,7 @@ gs_shell_details_class_init (GsShellDetailsClass *klass)
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, label_details_version_value);
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, label_pending);
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, list_box_addons);
+	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, list_box_reviews);
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, scrolledwindow_details);
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, spinner_details);
 	gtk_widget_class_bind_template_child (widget_class, GsShellDetails, spinner_install_remove);

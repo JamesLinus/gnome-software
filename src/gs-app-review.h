@@ -41,7 +41,7 @@ const gchar	*gs_app_review_get_text			(GsAppReview	*review);
 void		 gs_app_review_set_text			(GsAppReview	*review,
 						 const gchar	*text);
 
-gint	 gs_app_review_get_rating			(GsAppReview	*review);
+gint		 gs_app_review_get_rating			(GsAppReview	*review);
 void		 gs_app_review_set_rating			(GsAppReview	*review,
 						 gint	rating);
 
@@ -53,9 +53,9 @@ const gchar	*gs_app_review_get_reviewer			(GsAppReview	*review);
 void		 gs_app_review_set_reviewer			(GsAppReview	*review,
 						 const gchar	*reviewer);
 
-guint64		 gs_app_review_get_date			(GsAppReview	*review);
+GDateTime	*gs_app_review_get_date			(GsAppReview	*review);
 void		 gs_app_review_set_date			(GsAppReview	*review,
-						 guint64	date);
+						 GDateTime	*date);
 
 void		 gs_app_review_set_is_useful			(GsAppReview	*review,
 						 gboolean	is_useful);

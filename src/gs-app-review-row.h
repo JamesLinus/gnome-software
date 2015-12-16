@@ -19,38 +19,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GS_REVIEW_WIDGET_H
-#define GS_REVIEW_WIDGET_H
+#ifndef GS_APP_REVIEW_ROW_H
+#define GS_APP_REVIEW_ROW_H
 
 #include <gtk/gtk.h>
 
-#include "gs-app.h"
+#include "gs-app-review.h"
 
 G_BEGIN_DECLS
 
-#define GS_TYPE_REVIEW_WIDGET (gs_review_widget_get_type ())
+#define GS_TYPE_APP_REVIEW_ROW (gs_app_review_row_get_type ())
 
-G_DECLARE_DERIVABLE_TYPE (GsReviewWidget, gs_review_widget, GS, REVIEW_WIDGET, GtkBin)
+G_DECLARE_FINAL_TYPE (GsAppReviewRow, gs_app_review_row, GS, APP_REVIEW_ROW, GtkListBoxRow)
 
-struct _GsReviewWidgetClass
-{
-	GtkBinClass	 parent_class;
-};
-
-GtkWidget	*gs_review_widget_new			(void);
-void		 gs_review_widget_set_rating		(GsReviewWidget	*review,
-							 gint		 rating);
-void		 gs_review_widget_set_author		(GsReviewWidget	*review,
-							 const gchar	*author);
-void		 gs_review_widget_set_date		(GsReviewWidget	*review,
-							 GDateTime	*date);
-void		 gs_review_widget_set_summary		(GsReviewWidget	*review,
-							 const gchar	*summary);
-void		 gs_review_widget_set_text		(GsReviewWidget	*review,
-							 const gchar	*text);
+GtkWidget	*gs_app_review_row_new			(GsAppReview *review);
 
 G_END_DECLS
 
-#endif /* GS_REVIEW_WIDGET_H */
+#endif /* GS_APP_REVIEW_ROW_H */
 
 /* vim: set noexpandtab: */

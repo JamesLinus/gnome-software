@@ -32,7 +32,7 @@ struct _GsAppReview
 	gint			 rating;
 	gchar			*version;
 	gchar			*reviewer;
-	guint64			 date;  
+	GDateTime		*date;  
 };
 
 enum {
@@ -155,7 +155,7 @@ gs_app_review_set_reviewer (GsAppReview *review, const gchar *reviewer)
 /**
  * gs_app_review_get_date:
  **/
-guint64
+GDateTime *
 gs_app_review_get_date (GsAppReview *review)
 {
 	g_return_val_if_fail (GS_IS_APP_REVIEW (review), 0);
@@ -166,10 +166,11 @@ gs_app_review_get_date (GsAppReview *review)
  * gs_app_review_set_date:
  */
 void
-gs_app_review_set_date (GsAppReview *review, guint64 date)
+gs_app_review_set_date (GsAppReview *review, GDateTime *date)
 {
 	g_return_if_fail (GS_IS_APP_REVIEW (review));
-	review->date = date;
+	g_clear_pointer (&review->date, g_date_time_unref);
+	review->date = g_date_time_ref (date);
 }
 
 /**
@@ -197,7 +198,7 @@ gs_app_review_get_property (GObject *object, guint prop_id, GValue *value, GPara
 		g_value_set_string (value, review->reviewer);
 		break;
 	case PROP_DATE:
-		g_value_set_uint64 (value, review->rating);
+		g_value_set_object (value, review->date);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -230,7 +231,7 @@ gs_app_review_set_property (GObject *object, guint prop_id, const GValue *value,
 		gs_app_review_set_reviewer (review, g_value_get_string (value));
 		break;
 	case PROP_DATE:
-		gs_app_review_set_date (review, g_value_get_uint64 (value));
+		gs_app_review_set_date (review, g_value_get_object (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -238,10 +239,16 @@ gs_app_review_set_property (GObject *object, guint prop_id, const GValue *value,
 	}
 }
 
-/**
- * gs_app_review_finalize:
- * @object: The object to finalize
- **/
+static void
+gs_app_review_dispose (GObject *object)
+{
+	GsAppReview *review = GS_APP_REVIEW (object);
+
+	g_clear_pointer (&review->date, g_date_time_unref);
+
+	G_OBJECT_CLASS (gs_app_review_parent_class)->dispose (object);
+}
+
 static void
 gs_app_review_finalize (GObject *object)
 {
@@ -254,15 +261,12 @@ gs_app_review_finalize (GObject *object)
 	G_OBJECT_CLASS (gs_app_review_parent_class)->finalize (object);
 }
 
-/**
- * gs_app_review_class_init:
- * @klass: The GsAppReviewClass
- **/
 static void
 gs_app_review_class_init (GsAppReviewClass *klass)
 {
 	GParamSpec *pspec;
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	object_class->dispose = gs_app_review_dispose;
 	object_class->finalize = gs_app_review_finalize;
 	object_class->get_property = gs_app_review_get_property;
 	object_class->set_property = gs_app_review_set_property;
@@ -311,8 +315,8 @@ gs_app_review_class_init (GsAppReviewClass *klass)
   	/**
 	 * GsApp:date:
 	 */
-	pspec = g_param_spec_uint64 ("date", NULL, NULL,
-				     0, G_MAXUINT64, 0,
+	pspec = g_param_spec_object ("date", NULL, NULL,
+				     GS_TYPE_APP_REVIEW,
 				     G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 	g_object_class_install_property (object_class, PROP_DATE, pspec);
 }

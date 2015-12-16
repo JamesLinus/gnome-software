@@ -1022,7 +1022,40 @@
                         <property name="position">11</property>
                       </packing>
                     </child>
-
+                    <child>
+                      <object class="GtkBox" id="box_reviews">
+                        <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="margin_top">28</property>
+                        <child>
+                          <object class="GtkLabel" id="application_details_reviews_title">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_bottom">12</property>
+                            <property name="halign">start</property>
+                            <property name="valign">start</property>
+                            <property name="hexpand">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Reviews</property>
+                            <style>
+                              <class name="application-reviews-title"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkListBox" id="list_box_reviews">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="selection_mode">none</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">12</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
