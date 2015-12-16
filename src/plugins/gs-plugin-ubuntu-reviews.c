@@ -227,10 +227,11 @@ gs_plugin_refine (GsPlugin *plugin,
 
 	for (l = *list; l != NULL; l = l->next) {
 		GsApp *app = GS_APP (l->data);
-		GPtrArray *sources;
+		GPtrArray *reviews, *sources;
 		guint i;
 
-		if (gs_app_get_rating (app) != -1)
+		reviews = gs_app_get_reviews (app);
+		if (reviews->len > 0)
 			continue;
 
 		sources = gs_app_get_sources (app);
