@@ -863,7 +863,6 @@ gs_shell_details_refresh_addons (GsShellDetails *self)
 				  G_CALLBACK (gs_shell_details_addon_selected_cb),
 				  self);
 	}
-
 }
 
 static void
