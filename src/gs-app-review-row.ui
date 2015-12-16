@@ -28,6 +28,7 @@
             <property name="visible">True</property>
             <property name="expand">True</property>
             <property name="halign">start</property>
+            <property name="ellipsize">end</property>
             <style>
               <class name="review-summary"/>
             </style>
@@ -58,6 +59,8 @@
           <object class="GtkLabel" id="text_label">
             <property name="visible">True</property>
             <property name="halign">start</property>
+            <property name="wrap">True</property>
+            <property name="xalign">0</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
