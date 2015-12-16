@@ -158,7 +158,7 @@ gs_app_review_set_reviewer (GsAppReview *review, const gchar *reviewer)
 GDateTime *
 gs_app_review_get_date (GsAppReview *review)
 {
-	g_return_val_if_fail (GS_IS_APP_REVIEW (review), 0);
+	g_return_val_if_fail (GS_IS_APP_REVIEW (review), NULL);
 	return review->date;
 }
 
@@ -170,7 +170,8 @@ gs_app_review_set_date (GsAppReview *review, GDateTime *date)
 {
 	g_return_if_fail (GS_IS_APP_REVIEW (review));
 	g_clear_pointer (&review->date, g_date_time_unref);
-	review->date = g_date_time_ref (date);
+	if (date)
+		review->date = g_date_time_ref (date);
 }
 
 /**
