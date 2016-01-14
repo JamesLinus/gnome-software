@@ -68,6 +68,7 @@ PKG_CHECK_MODULES(GSETTINGS_DESKTOP_SCHEMAS, gsettings-desktop-schemas >= 3.11.5
 PKG_CHECK_MODULES(GNOME_DESKTOP, gnome-desktop-3.0 >= 3.17.92)
 PKG_CHECK_MODULES(POLKIT, polkit-gobject-1)
 PKG_CHECK_MODULES(JSON_GLIB, json-glib-1.0 >= 0.12)
+PKG_CHECK_MODULES(OAUTH, oauth)
 AC_PATH_PROG(APPSTREAM_UTIL, [appstream-util], [unfound])
 AC_ARG_ENABLE(man,
               [AS_HELP_STRING([--enable-man],

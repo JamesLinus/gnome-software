@@ -57,11 +57,6 @@ GDateTime	*gs_app_review_get_date			(GsAppReview	*review);
 void		 gs_app_review_set_date			(GsAppReview	*review,
 						 GDateTime	*date);
 
-void		 gs_app_review_set_is_useful			(GsAppReview	*review,
-						 gboolean	is_useful);
-
-void		 gs_app_review_mark_innapropriate			(GsAppReview	*review);
-
 G_END_DECLS
 
 #endif /* __GS_APP_REVIEW_H */

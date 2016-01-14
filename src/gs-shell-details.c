@@ -35,6 +35,7 @@
 #include "gs-screenshot-image.h"
 #include "gs-progress-button.h"
 #include "gs-star-widget.h"
+#include "gs-app-review-dialog.h"
 #include "gs-app-review-row.h"
 
 typedef enum {
@@ -1213,6 +1214,25 @@ gs_shell_details_app_set_ratings_cb (GObject *source,
 	}
 }
 
+
+/**
+ * gs_shell_details_app_set_review_cb:
+ **/
+static void
+gs_shell_details_app_set_review_cb (GObject *source,
+				GAsyncResult *res,
+				gpointer user_data)
+{
+	GsPluginLoader *plugin_loader = GS_PLUGIN_LOADER (source);
+	GsShellDetails *self = GS_SHELL_DETAILS (user_data);
+	g_autoptr(GError) error = NULL;
+
+	if (!gs_plugin_loader_app_action_finish (plugin_loader, res, &error)) {
+		g_warning ("failed to set review %s: %s",
+			   gs_app_get_id (self->app), error->message);
+	}
+}
+
 /**
  * gs_shell_details_rating_changed_cb:
  **/
@@ -1221,6 +1241,38 @@ gs_shell_details_rating_changed_cb (GsStarWidget *star,
 				    guint rating,
 				    GsShellDetails *self)
 {
+	GtkWidget *dialog;
+	GtkResponseType response;
+
+	dialog = gs_app_review_dialog_new ();
+
+	gtk_window_set_transient_for (GTK_WINDOW (dialog), gs_shell_get_window (self->shell));
+	response = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (response == GTK_RESPONSE_OK) {
+		g_autoptr(GsAppReview) review = NULL;
+		g_autoptr(GDateTime) now = NULL;
+		g_autofree gchar *text = NULL;
+
+		review = gs_app_review_new ();
+		gs_app_review_set_summary (review, gs_app_review_dialog_get_summary (GS_APP_REVIEW_DIALOG (dialog)));
+		text = gs_app_review_dialog_get_text (GS_APP_REVIEW_DIALOG (dialog));
+		gs_app_review_set_text (review, text);
+		gs_app_review_set_rating (review, gs_app_review_dialog_get_rating (GS_APP_REVIEW_DIALOG (dialog)));
+		gs_app_review_set_version (review, gs_app_get_version (self->app));
+		gs_app_review_set_reviewer (review, "Joe Bloggs"); // FIXME
+		now = g_date_time_new_now_local ();
+		gs_app_review_set_date (review, now);
+
+		/* call into the plugins to set the new value */
+		gs_app_set_self_review (self->app, review);
+		gs_plugin_loader_app_action_async (self->plugin_loader, self->app,
+						   GS_PLUGIN_LOADER_ACTION_SET_REVIEW,
+						   self->cancellable,
+						   gs_shell_details_app_set_review_cb,
+						   self);
+	}
+	gtk_widget_destroy (dialog);
+#if 0
 	g_debug ("%s rating changed from %i%% to %i%%",
 		 gs_app_get_id (self->app),
 		 gs_app_get_rating (self->app),
@@ -1234,6 +1286,7 @@ gs_shell_details_rating_changed_cb (GsStarWidget *star,
 					   self->cancellable,
 					   gs_shell_details_app_set_ratings_cb,
 					   self);
+#endif
 }
 
 static void

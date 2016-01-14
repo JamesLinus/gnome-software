@@ -24,6 +24,7 @@
 #include <math.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
+#include <oauth.h>
 
 #include <gs-plugin.h>
 #include <gs-utils.h>
@@ -244,6 +245,170 @@ gs_plugin_refine (GsPlugin *plugin,
 			if (!ret)
 				return FALSE;
 		}
+	}
+
+	return TRUE;
+}
+
+static void
+add_string_member (JsonBuilder *builder, const gchar *name, const gchar *value)
+{
+	json_builder_set_member_name (builder, name);
+	json_builder_add_string_value (builder, value);
+}
+
+static void
+add_int_member (JsonBuilder *builder, const gchar *name, gint64 value)
+{
+	json_builder_set_member_name (builder, name);
+	json_builder_add_int_value (builder, value);
+}
+
+static void
+sign_message (SoupMessage *message, OAuthMethod method,
+              const gchar *oauth_consumer_key, const gchar *oauth_consumer_secret,
+              const gchar *oauth_token, const gchar *oauth_token_secret)
+{
+	g_autofree gchar *url = NULL, *oauth_authorization_parameters = NULL, *authorization_text = NULL;
+	gchar **url_parameters = NULL;
+	int url_parameters_length;
+
+	url = soup_uri_to_string (soup_message_get_uri (message), FALSE);
+
+	url_parameters_length = oauth_split_url_parameters(url, &url_parameters);
+	oauth_sign_array2_process (&url_parameters_length, &url_parameters,
+	                           NULL,
+	                           method,
+	                           message->method,
+	                           oauth_consumer_key, oauth_consumer_secret,
+	                           oauth_token, oauth_token_secret);
+	oauth_authorization_parameters = oauth_serialize_url_sep (url_parameters_length, 1, url_parameters, ", ", 6);
+	oauth_free_array (&url_parameters_length, &url_parameters);
+	authorization_text = g_strdup_printf ("OAuth realm=\"Ratings and Reviews\", %s", oauth_authorization_parameters);
+	soup_message_headers_append (message->request_headers, "Authorization", authorization_text);
+}
+
+static void
+set_request (SoupMessage *message, JsonBuilder *builder)
+{
+	JsonGenerator *generator = json_generator_new ();
+	json_generator_set_root (generator, json_builder_get_root (builder));
+	gsize length;
+	gchar *data = json_generator_to_data (generator, &length);
+	soup_message_set_request (message, "application/json", SOUP_MEMORY_TAKE, data, length);
+	g_object_unref (generator);
+}
+
+static gboolean
+set_package_review (GsPlugin *plugin,
+                    GsAppReview *review,
+                    const gchar *package_name,
+                    GError **error)
+{
+	g_autofree gchar *uri = NULL, *path = NULL;
+	g_autofree gchar *oauth_consumer_key = NULL, *oauth_consumer_secret = NULL, *oauth_token = NULL, *oauth_token_secret = NULL;
+	g_autoptr(GKeyFile) config = NULL;
+	gint rating, n_stars = 0;
+	g_autoptr(SoupMessage) msg = NULL;
+	JsonBuilder *builder;
+	guint status_code;
+
+	/* Ubuntu reviews require a summary and description - just make one up for now */
+	rating = gs_app_review_get_rating (review);
+	if (rating > 80)
+		n_stars = 5;
+	else if (rating > 60)
+		n_stars = 4;
+	else if (rating > 40)
+		n_stars = 3;
+	else if (rating > 20)
+		n_stars = 2;
+	else
+		n_stars = 1;
+
+	/* Load OAuth token */
+	// FIXME needs to integrate with GNOME Online Accounts / libaccounts
+	config = g_key_file_new ();
+	path = g_build_filename (g_get_user_config_dir (), "gnome-software", "ubuntu-one-credentials", NULL);
+	g_key_file_load_from_file (config, path, G_KEY_FILE_NONE, NULL);
+	oauth_consumer_key = g_key_file_get_string (config, "gnome-software", "consumer-key", NULL);
+	oauth_consumer_secret = g_key_file_get_string (config, "gnome-software", "consumer-secret", NULL);
+	oauth_token = g_key_file_get_string (config, "gnome-software", "token", NULL);
+	oauth_token_secret = g_key_file_get_string (config, "gnome-software", "token-secret", NULL);
+	if (!oauth_consumer_key || !oauth_consumer_secret || !oauth_token || !oauth_token_secret) {
+		g_set_error (error,
+			     GS_PLUGIN_ERROR,
+			     GS_PLUGIN_ERROR_FAILED,
+			     "%s", "No Ubuntu One OAuth tokens");
+		return FALSE;
+	}
+
+	uri = g_strdup_printf ("%s/api/1.0/reviews/", UBUNTU_REVIEWS_SERVER);
+	msg = soup_message_new (SOUP_METHOD_POST, uri);
+	builder = json_builder_new ();
+	json_builder_begin_object (builder);
+	add_string_member (builder, "package_name", package_name);
+	add_string_member (builder, "summary", gs_app_review_get_summary (review));
+	add_string_member (builder, "review_text", gs_app_review_get_text (review));
+	add_string_member (builder, "language", "en"); // FIXME
+	add_string_member (builder, "origin", "ubuntu"); // FIXME gs_app_get_origin (app));
+	add_string_member (builder, "distroseries", "xenial"); // FIXME
+	add_string_member (builder, "version", gs_app_review_get_version (review));
+	add_int_member (builder, "rating", n_stars);
+	add_string_member (builder, "arch_tag", "amd64"); // FIXME
+	json_builder_end_object (builder);
+	set_request (msg, builder);
+	g_object_unref (builder);
+	sign_message (msg, OA_HMAC, oauth_consumer_key, oauth_consumer_secret, oauth_token, oauth_token_secret);
+
+	status_code = soup_session_send_message (plugin->priv->session, msg);
+	if (status_code != SOUP_STATUS_OK) {
+		g_set_error (error,
+			     GS_PLUGIN_ERROR,
+			     GS_PLUGIN_ERROR_FAILED,
+			     "Failed to post review: %s",
+			     soup_status_get_phrase (status_code));
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+gs_plugin_app_set_review (GsPlugin *plugin,
+			  GsApp *app,
+			  GCancellable *cancellable,
+			  GError **error)
+{
+	GsAppReview *review;
+	GPtrArray *sources;
+	const gchar *package_name;
+	gboolean ret;
+	guint i;
+	g_autoptr(SoupMessage) msg = NULL;
+
+	review = gs_app_get_self_review (app);
+	g_return_val_if_fail (review != NULL, FALSE);
+
+	/* get the package name */
+	sources = gs_app_get_sources (app);
+	if (sources->len == 0) {
+		g_warning ("no package name for %s", gs_app_get_id (app));
+		return TRUE;
+	}
+
+	if (!setup_networking (plugin, error))
+		return FALSE;
+
+	/* set rating for each package */
+	for (i = 0; i < sources->len; i++) {
+		package_name = g_ptr_array_index (sources, i);
+		ret = set_package_review (plugin,
+		                          review,
+		                          package_name,
+		                          error);
+		if (!ret)
+			return FALSE;
 	}
 
 	return TRUE;

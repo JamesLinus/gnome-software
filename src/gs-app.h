@@ -205,6 +205,9 @@ void		 gs_app_set_rating_confidence	(GsApp		*app,
 GsAppRatingKind	 gs_app_get_rating_kind		(GsApp		*app);
 void		 gs_app_set_rating_kind		(GsApp		*app,
 						 GsAppRatingKind rating_kind);
+GsAppReview	*gs_app_get_self_review		(GsApp		*app);
+void		 gs_app_set_self_review		(GsApp		*app,
+						 GsAppReview	*review);
 GPtrArray	*gs_app_get_reviews		(GsApp		*app);
 void		 gs_app_add_review		(GsApp		*app,
 						 GsAppReview	*review);

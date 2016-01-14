@@ -12,6 +12,7 @@ AM_CPPFLAGS =						\
 	$(FWUPD_CFLAGS)					\
 	$(LIMBA_CFLAGS)					\
 	$(JSON_GLIB_CFLAGS)				\
+	$(OAUTH_CFLAGS)					\
 	-DBINDIR=\"$(bindir)\"				\
 	-DDATADIR=\"$(datadir)\"			\
 	-DGS_MODULESETDIR=\"$(datadir)/gnome-software/modulesets.d\" \
@@ -133,7 +134,7 @@ libgs_plugin_local_ratings_la_LDFLAGS = -module -avoid-version
 libgs_plugin_local_ratings_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARN_CFLAGS)
 
 libgs_plugin_ubuntu_reviews_la_SOURCES = gs-plugin-ubuntu-reviews.c
-libgs_plugin_ubuntu_reviews_la_LIBADD = $(GS_PLUGIN_LIBS) $(SOUP_LIBS) $(SQLITE_LIBS) $(JSON_GLIB_LIBS)
+libgs_plugin_ubuntu_reviews_la_LIBADD = $(GS_PLUGIN_LIBS) $(SOUP_LIBS) $(SQLITE_LIBS) $(JSON_GLIB_LIBS) $(OAUTH_LIBS)
 libgs_plugin_ubuntu_reviews_la_LDFLAGS = -module -avoid-version
 libgs_plugin_ubuntu_reviews_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARNINGFLAGS_C)
 

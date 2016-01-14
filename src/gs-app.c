@@ -82,7 +82,8 @@ struct _GsApp
 	gint			 rating;
 	gint			 rating_confidence;
 	GsAppRatingKind		 rating_kind;
-	GPtrArray		*reviews; /* on GsAppReview */
+	GsAppReview		*self_review;
+	GPtrArray		*reviews; /* of GsAppReview */
 	guint64			 size;
 	GsAppKind		 kind;
 	AsIdKind		 id_kind;
@@ -1593,6 +1594,29 @@ gs_app_set_rating_kind (GsApp *app, GsAppRatingKind rating_kind)
 	g_return_if_fail (GS_IS_APP (app));
 	app->rating_kind = rating_kind;
 	gs_app_queue_notify (app, "rating");
+}
+
+/**
+ * gs_app_get_self_review:
+ */
+GsAppReview *
+gs_app_get_self_review (GsApp *app)
+{
+	g_return_val_if_fail (GS_IS_APP (app), NULL);
+	return app->self_review;
+}
+
+/**
+ * gs_app_set_self_review:
+ */
+void
+gs_app_set_self_review (GsApp *app, GsAppReview *review)
+{
+	g_return_if_fail (GS_IS_APP (app));
+
+	g_clear_object (&app->self_review);
+	if (review != NULL)
+		app->self_review = g_object_ref (review);
 }
 
 /**
