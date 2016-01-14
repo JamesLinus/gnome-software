@@ -299,6 +299,12 @@ set_request (SoupMessage *message, JsonBuilder *builder)
 	g_object_unref (generator);
 }
 
+const gchar *
+gs_plugin_get_review_auth (GsPlugin *plugin)
+{
+	return "ubuntuone";
+}
+
 static gboolean
 set_package_review (GsPlugin *plugin,
                     GsAppReview *review,

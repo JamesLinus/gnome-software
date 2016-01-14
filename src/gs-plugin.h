@@ -117,6 +117,7 @@ typedef enum {
 
 typedef const gchar	*(*GsPluginGetNameFunc)		(void);
 typedef const gchar	**(*GsPluginGetDepsFunc)	(GsPlugin	*plugin);
+typedef const gchar	*(*GsPluginGetReviewAuthFunc)	(GsPlugin	*plugin);
 typedef void		 (*GsPluginFunc)		(GsPlugin	*plugin);
 typedef gboolean	 (*GsPluginSearchFunc)		(GsPlugin	*plugin,
 							 gchar		**value,

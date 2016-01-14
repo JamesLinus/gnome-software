@@ -213,6 +213,7 @@ GsApp		*gs_plugin_loader_dedupe		(GsPluginLoader	*plugin_loader,
 							 GsApp		*app);
 void		 gs_plugin_loader_set_network_status    (GsPluginLoader *plugin_loader,
 							 gboolean        online);
+void		 gs_plugin_loader_get_review_auths      (GsPluginLoader *plugin_loader);
 
 G_END_DECLS
 
