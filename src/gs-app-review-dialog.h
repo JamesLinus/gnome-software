@@ -32,6 +32,8 @@ G_DECLARE_FINAL_TYPE (GsAppReviewDialog, gs_app_review_dialog, GS, APP_REVIEW_DI
 
 GtkWidget	*gs_app_review_dialog_new		(void);
 gint		 gs_app_review_dialog_get_rating	(GsAppReviewDialog	*dialog);
+void		 gs_app_review_dialog_set_rating	(GsAppReviewDialog	*dialog,
+							 gint			 rating);
 const gchar	*gs_app_review_dialog_get_summary	(GsAppReviewDialog	*dialog);
 gchar		*gs_app_review_dialog_get_text		(GsAppReviewDialog	*dialog);
 

@@ -45,6 +45,12 @@ gs_app_review_dialog_get_rating (GsAppReviewDialog *dialog)
 	return gs_star_widget_get_rating (GS_STAR_WIDGET (dialog->star));
 }
 
+void
+gs_app_review_dialog_set_rating	(GsAppReviewDialog *dialog, gint rating)
+{
+	gs_star_widget_set_rating (GS_STAR_WIDGET (dialog->star), GS_APP_RATING_KIND_USER, rating);
+}
+
 const gchar *
 gs_app_review_dialog_get_summary (GsAppReviewDialog *dialog)
 {

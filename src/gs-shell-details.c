@@ -1245,6 +1245,7 @@ gs_shell_details_rating_changed_cb (GsStarWidget *star,
 	GtkResponseType response;
 
 	dialog = gs_app_review_dialog_new ();
+	gs_app_review_dialog_set_rating (GS_APP_REVIEW_DIALOG (dialog), rating);
 
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), gs_shell_get_window (self->shell));
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
