@@ -3708,6 +3708,16 @@ gs_plugin_loader_offline_update_finish (GsPluginLoader *plugin_loader,
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
+/**
+ * gs_plugin_loader_get_review_auths:
+ */
+gchar **
+gs_plugin_loader_get_review_auths (GsPluginLoader *plugin_loader)
+{
+	GsPluginLoaderPrivate *priv = gs_plugin_loader_get_instance_private (plugin_loader);
+	return priv->review_auths;
+}
+
 /******************************************************************************/
 
 /* vim: set noexpandtab: */

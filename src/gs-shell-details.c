@@ -1243,9 +1243,12 @@ gs_shell_details_rating_changed_cb (GsStarWidget *star,
 {
 	GtkWidget *dialog;
 	GtkResponseType response;
+	gchar **review_auths;
 
 	dialog = gs_app_review_dialog_new ();
 	gs_app_review_dialog_set_rating (GS_APP_REVIEW_DIALOG (dialog), rating);
+
+	review_auths = gs_plugin_loader_get_review_auths (self->plugin_loader);
 
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), gs_shell_get_window (self->shell));
 	response = gtk_dialog_run (GTK_DIALOG (dialog));
