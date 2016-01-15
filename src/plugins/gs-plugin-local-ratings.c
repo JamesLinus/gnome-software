@@ -51,7 +51,7 @@ gs_plugin_initialize (GsPlugin *plugin)
 	/* create private area */
 	plugin->priv = GS_PLUGIN_GET_PRIVATE (GsPluginPrivate);
 
-	/* Don't run on Ubuntu - it has it's own review plugin */
+	/* Don't run on Ubuntu - it has its own review plugin */
 	if (gs_plugin_check_distro_id (plugin, "ubuntu")) {
 		gs_plugin_set_enabled (plugin, FALSE);
 		g_debug ("disabling '%s' as we're on Ubuntu", plugin->name);
