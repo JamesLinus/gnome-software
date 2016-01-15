@@ -1024,7 +1024,6 @@
                     </child>
                     <child>
                       <object class="GtkBox" id="box_reviews">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="margin_top">28</property>
                         <child>

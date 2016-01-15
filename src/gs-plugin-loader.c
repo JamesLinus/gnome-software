@@ -50,6 +50,7 @@ typedef struct
 	guint			 updates_changed_id;
 	gboolean		 online; 
 
+	gboolean		 supports_reviews;
 	gchar			**review_auths;
 } GsPluginLoaderPrivate;
 
@@ -2813,6 +2814,7 @@ gs_plugin_loader_open_plugin (GsPluginLoader *plugin_loader,
 	GModule *module;
 	GsPluginGetNameFunc plugin_name = NULL;
 	GsPluginGetDepsFunc plugin_deps = NULL;
+	GsPluginGetSupportsReviewsFunc plugin_supports_reviews = NULL;
 	GsPluginGetReviewAuthFunc plugin_review_auth = NULL;
 	const gchar *review_auth;
 	GsPlugin *plugin = NULL;
@@ -2839,7 +2841,14 @@ gs_plugin_loader_open_plugin (GsPluginLoader *plugin_loader,
 	                        "gs_plugin_get_deps",
 	                        (gpointer *) &plugin_deps);
 
-	/* Check if this module requires any authorization for reviews */
+	/* Check if this plugin can do reviews */
+	(void) g_module_symbol (module,
+	                        "gs_plugin_get_supports_reviews",
+	                        (gpointer *) &plugin_supports_reviews);
+	if (plugin_supports_reviews && plugin_supports_reviews (plugin))
+		priv->supports_reviews = TRUE;
+
+	/* Check if this plugin requires any authorization for reviews */
 	(void) g_module_symbol (module,
 	                        "gs_plugin_get_review_auth",
 	                        (gpointer *) &plugin_review_auth);
@@ -3706,6 +3715,16 @@ gs_plugin_loader_offline_update_finish (GsPluginLoader *plugin_loader,
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
 	return g_task_propagate_boolean (G_TASK (res), error);
+}
+
+/**
+ * gs_plugin_loader_get_supports_reviews:
+ */
+gboolean
+gs_plugin_loader_get_supports_reviews (GsPluginLoader *plugin_loader)
+{
+	GsPluginLoaderPrivate *priv = gs_plugin_loader_get_instance_private (plugin_loader);
+	return priv->supports_reviews;
 }
 
 /**
