@@ -1,0 +1,104 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/com/ubuntu/sso/accounts">
+  <interface name="com.ubuntu.sso.UserManagement">
+    <signal name="PasswordChanged">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <signal name="UserRegistered">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <signal name="EmailValidationError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <method name="login_and_ping">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="password" />
+      <arg direction="in"  type="s" name="ping_url" />
+    </method>
+    <signal name="PasswordResetTokenSent">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <signal name="CaptchaGenerationError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <method name="request_password_reset_token">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+    </method>
+    <method name="validate_email">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="password" />
+      <arg direction="in"  type="s" name="email_token" />
+    </method>
+    <signal name="LoggedIn">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <signal name="UserRegistrationError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <signal name="CaptchaGenerated">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <method name="validate_email_and_ping">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="password" />
+      <arg direction="in"  type="s" name="email_token" />
+      <arg direction="in"  type="s" name="ping_url" />
+    </method>
+    <signal name="EmailValidated">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <method name="generate_captcha">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="filename" />
+    </method>
+    <signal name="LoginError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <signal name="UserNotValidated">
+      <arg type="s" name="app_name" />
+      <arg type="s" name="result" />
+    </signal>
+    <signal name="PasswordResetError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <method name="login">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="password" />
+    </method>
+    <signal name="PasswordChangeError">
+      <arg type="s" name="app_name" />
+      <arg type="a{ss}" name="error" />
+    </signal>
+    <method name="register_user">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="password" />
+      <arg direction="in"  type="s" name="name" />
+      <arg direction="in"  type="s" name="captcha_id" />
+      <arg direction="in"  type="s" name="captcha_solution" />
+    </method>
+    <method name="set_new_password">
+      <arg direction="in"  type="s" name="app_name" />
+      <arg direction="in"  type="s" name="email" />
+      <arg direction="in"  type="s" name="token" />
+      <arg direction="in"  type="s" name="new_password" />
+    </method>
+  </interface>
+</node>

@@ -133,10 +133,34 @@ libgs_plugin_local_ratings_la_LIBADD = $(GS_PLUGIN_LIBS) $(SQLITE_LIBS)
 libgs_plugin_local_ratings_la_LDFLAGS = -module -avoid-version
 libgs_plugin_local_ratings_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARN_CFLAGS)
 
-libgs_plugin_ubuntu_reviews_la_SOURCES = gs-plugin-ubuntu-reviews.c
+libgs_plugin_ubuntu_reviews_la_SOURCES =		\
+	gs-plugin-ubuntu-reviews.c			\
+	ubuntu-sso-accounts-proxy.c			\
+	ubuntu-sso-credentials-proxy.c
 libgs_plugin_ubuntu_reviews_la_LIBADD = $(GS_PLUGIN_LIBS) $(SOUP_LIBS) $(JSON_GLIB_LIBS) $(OAUTH_LIBS) $(SQLITE_LIBS)
 libgs_plugin_ubuntu_reviews_la_LDFLAGS = -module -avoid-version
 libgs_plugin_ubuntu_reviews_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARNINGFLAGS_C)
+
+ubuntu-sso-accounts-proxy.c: com.ubuntu.sso.UserManagement.xml
+	$(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
+	                 --generate-c-code ubuntu-sso-accounts-proxy \
+	                 --c-namespace UbuntuSSO \
+	                 --annotate 'com.ubuntu.sso.UserManagement' \
+	                            org.gtk.GDBus.C.Name \
+	                            Accounts \
+	                 com.ubuntu.sso.UserManagement.xml
+
+ubuntu-sso-credentials-proxy.c: com.ubuntu.sso.CredentialsManagement.xml
+	$(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
+	                 --generate-c-code ubuntu-sso-credentials-proxy \
+	                 --c-namespace UbuntuSSO \
+	                 --annotate 'com.ubuntu.sso.CredentialsManagement' \
+	                            org.gtk.GDBus.C.Name \
+	                            Credentials \
+	                 --annotate 'com.ubuntu.sso.CredentialsManagement.find_credentials_sync()' \
+	                            org.gtk.GDBus.C.Name \
+	                            find_credentials_and_wait \
+	                 com.ubuntu.sso.CredentialsManagement.xml
 
 libgs_plugin_packagekit_la_SOURCES =			\
 	gs-plugin-packagekit.c				\
@@ -200,5 +224,11 @@ gs_self_test_CFLAGS = $(WARN_CFLAGS)
 TESTS = gs-self-test
 
 EXTRA_DIST = moduleset-test.xml
+
+GITIGNOREFILES =					\
+	ubuntu-sso-accounts-proxy.h			\
+	ubuntu-sso-accounts-proxy.c			\
+	ubuntu-sso-credentials-proxy.h			\
+	ubuntu-sso-credentials-proxy.c
 
 -include $(top_srcdir)/git.mk
