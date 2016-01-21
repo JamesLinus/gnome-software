@@ -179,12 +179,12 @@ gs_plugin_xdg_app_set_metadata_installed (GsApp *app, XdgAppInstalledRef *xref)
 	/* get the last time the app was updated */
 	metadata_fn = g_build_filename (xdg_app_installed_ref_get_deploy_dir (xref),
 					"..",
-					"origin",
+					"active",
 					NULL);
 	file = g_file_new_for_path (metadata_fn);
 	info = g_file_query_info (file,
 				  G_FILE_ATTRIBUTE_TIME_MODIFIED,
-				  G_FILE_QUERY_INFO_NONE,
+				  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 				  NULL, NULL);
 	if (info != NULL) {
 		mtime = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
