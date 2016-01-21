@@ -2208,7 +2208,6 @@ gs_app_dispose (GObject *object)
 	g_clear_object (&app->bundle);
 	g_clear_object (&app->featured_pixbuf);
 	g_clear_object (&app->icon);
-	g_clear_object (&app->reviews);
 	g_clear_object (&app->pixbuf);
 
 	g_clear_pointer (&app->addons, g_ptr_array_unref);
