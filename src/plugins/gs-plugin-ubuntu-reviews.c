@@ -30,11 +30,14 @@
 #include <gs-plugin.h>
 #include <gs-utils.h>
 
+#include "ubuntu-sso-credentials-proxy.h"
+
 struct GsPluginPrivate {
 	gchar                   *db_path;
 	sqlite3                 *db;
 	gsize			 db_loaded;
 	SoupSession		*session;
+	UbuntuSSOCredentials    *credentials;
 };
 
 typedef struct {
@@ -86,6 +89,8 @@ gs_plugin_get_deps (GsPlugin *plugin)
 void
 gs_plugin_destroy (GsPlugin *plugin)
 {
+	g_clear_object (&plugin->priv->credentials);
+
 	if (plugin->priv->db != NULL)
 		sqlite3_close (plugin->priv->db);
 	if (plugin->priv->session != NULL)
@@ -732,16 +737,19 @@ gs_plugin_get_review_auth (GsPlugin *plugin)
 }
 
 static gboolean
-set_package_review (GsPlugin *plugin,
-                    GsAppReview *review,
-                    const gchar *package_name,
-                    GError **error)
+send_review (GsPlugin    *plugin,
+             GsAppReview *review,
+             const gchar *package_name,
+             const gchar *consumer_key,
+             const gchar *consumer_secret,
+             const gchar *token,
+             const gchar *token_secret,
+             GError **error)
 {
-	g_autofree gchar *uri = NULL, *path = NULL;
-	g_autofree gchar *oauth_consumer_key = NULL, *oauth_consumer_secret = NULL, *oauth_token = NULL, *oauth_token_secret = NULL;
-	g_autoptr(GKeyFile) config = NULL;
-	gint rating, n_stars = 0;
-	g_autoptr(SoupMessage) msg = NULL;
+	gint rating;
+	gint n_stars;
+	g_autofree gchar *uri;
+	g_autoptr(SoupMessage) msg;
 	JsonBuilder *builder;
 	guint status_code;
 
@@ -757,26 +765,6 @@ set_package_review (GsPlugin *plugin,
 		n_stars = 2;
 	else
 		n_stars = 1;
-
-	/* Write review into database so we can easily access it */
-	// FIXME
-
-	/* Load OAuth token */
-	// FIXME needs to integrate with GNOME Online Accounts / libaccounts
-	config = g_key_file_new ();
-	path = g_build_filename (g_get_user_config_dir (), "gnome-software", "ubuntu-one-credentials", NULL);
-	g_key_file_load_from_file (config, path, G_KEY_FILE_NONE, NULL);
-	oauth_consumer_key = g_key_file_get_string (config, "gnome-software", "consumer-key", NULL);
-	oauth_consumer_secret = g_key_file_get_string (config, "gnome-software", "consumer-secret", NULL);
-	oauth_token = g_key_file_get_string (config, "gnome-software", "token", NULL);
-	oauth_token_secret = g_key_file_get_string (config, "gnome-software", "token-secret", NULL);
-	if (!oauth_consumer_key || !oauth_consumer_secret || !oauth_token || !oauth_token_secret) {
-		g_set_error (error,
-			     GS_PLUGIN_ERROR,
-			     GS_PLUGIN_ERROR_FAILED,
-			     "%s", "No Ubuntu One OAuth tokens");
-		return FALSE;
-	}
 
 	/* Create message for reviews.ubuntu.com */
 	uri = g_strdup_printf ("%s/api/1.0/reviews/", UBUNTU_REVIEWS_SERVER);
@@ -795,7 +783,7 @@ set_package_review (GsPlugin *plugin,
 	json_builder_end_object (builder);
 	set_request (msg, builder);
 	g_object_unref (builder);
-	sign_message (msg, OA_HMAC, oauth_consumer_key, oauth_consumer_secret, oauth_token, oauth_token_secret);
+	sign_message (msg, OA_HMAC, consumer_key, consumer_secret, token, token_secret);
 
 	/* Send to the server */
 	status_code = soup_session_send_message (plugin->priv->session, msg);
@@ -809,6 +797,117 @@ set_package_review (GsPlugin *plugin,
 	}
 
 	return TRUE;
+}
+
+typedef struct CredentialsFoundInfo {
+	GsPlugin    *plugin;
+	GsAppReview *review;
+	gchar       *package_name;
+} CredentialsFoundInfo;
+
+static void
+credentials_found (CredentialsFoundInfo *info,
+                   const gchar          *app_name,
+                   GVariant             *credentials,
+                   UbuntuSSOCredentials *proxy)
+{
+	const gchar *consumer_key;
+	const gchar *consumer_secret;
+	const gchar *token;
+	const gchar *token_secret;
+
+	g_signal_handlers_disconnect_by_func (proxy, credentials_found, info);
+
+	if (credentials &&
+	    g_variant_lookup (credentials, "consumer_key", "&s", &consumer_key) &&
+	    g_variant_lookup (credentials, "consumer_secret", "&s", &consumer_secret) &&
+	    g_variant_lookup (credentials, "token", "&s", &token) &&
+	    g_variant_lookup (credentials, "token_secret", "&s", &token_secret))
+		send_review (info->plugin,
+		             info->review,
+		             info->package_name,
+		             consumer_key,
+		             consumer_secret,
+		             token,
+		             token_secret,
+		             NULL);
+
+	g_free (info->package_name);
+	g_object_unref (info->review);
+	g_object_unref (info->plugin);
+	g_free (info);
+}
+
+static gboolean
+set_package_review (GsPlugin *plugin,
+                    GsAppReview *review,
+                    const gchar *package_name,
+                    GError **error)
+{
+	GVariant *credentials;
+	const gchar *consumer_key;
+	const gchar *consumer_secret;
+	const gchar *token;
+	const gchar *token_secret;
+	CredentialsFoundInfo *info;
+
+	/* Write review into database so we can easily access it */
+	// FIXME
+
+	/* Load OAuth token */
+	if (!plugin->priv->credentials) {
+		plugin->priv->credentials = ubuntu_sso_credentials_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+		                                                                           G_DBUS_PROXY_FLAGS_GET_INVALIDATED_PROPERTIES,
+		                                                                           "com.ubuntu.sso",
+		                                                                           "/com/ubuntu/sso/credentials",
+		                                                                           NULL,
+		                                                                           error);
+
+		if (!plugin->priv->credentials)
+			return FALSE;
+	}
+
+	if (!ubuntu_sso_credentials_call_find_credentials_and_wait_sync (plugin->priv->credentials,
+	                                                                 "Ubuntu One",
+	                                                                 g_variant_new_array (G_VARIANT_TYPE ("{ss}"), NULL, 0),
+	                                                                 &credentials,
+	                                                                 NULL,
+	                                                                 error) ||
+	    !credentials ||
+	    !g_variant_lookup (credentials, "consumer_key", "&s", &consumer_key) ||
+	    !g_variant_lookup (credentials, "consumer_secret", "&s", &consumer_secret) ||
+	    !g_variant_lookup (credentials, "token", "&s", &token) ||
+	    !g_variant_lookup (credentials, "token_secret", "&s", &token_secret)) {
+		if (credentials)
+			g_variant_unref (credentials);
+
+		info = g_new (CredentialsFoundInfo, 1);
+		info->plugin = g_object_ref (plugin);
+		info->review = g_object_ref (review);
+		info->package_name = g_strdup (package_name);
+
+		g_signal_connect_swapped (plugin->priv->credentials,
+		                          "credentials-found",
+		                          G_CALLBACK (credentials_found),
+		                          info);
+
+		return ubuntu_sso_credentials_call_login_sync (plugin->priv->credentials,
+		                                               "Ubuntu One",
+		                                               g_variant_new_array (G_VARIANT_TYPE ("{ss}"), NULL, 0),
+		                                               NULL,
+		                                               error);
+	}
+
+	g_variant_unref (credentials);
+
+	return send_review (plugin,
+	                    review,
+	                    package_name,
+	                    consumer_key,
+	                    consumer_secret,
+	                    token,
+	                    token_secret,
+	                    error);
 }
 
 gboolean
