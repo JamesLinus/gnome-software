@@ -143,7 +143,6 @@ libgs_plugin_ubuntu_reviews_la_LIBADD = $(GS_PLUGIN_LIBS) $(SOUP_LIBS) $(JSON_GL
 libgs_plugin_ubuntu_reviews_la_LDFLAGS = -module -avoid-version
 libgs_plugin_ubuntu_reviews_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARNINGFLAGS_C)
 
-ubuntu-sso-accounts-proxy.c: ubuntu-sso-accounts-proxy.h
 ubuntu-sso-accounts-proxy.c ubuntu-sso-accounts-proxy.h: com.ubuntu.sso.UserManagement.xml Makefile
 	$(AM_V_GEN) $(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
 	                 --generate-c-code ubuntu-sso-accounts-proxy \
@@ -153,7 +152,6 @@ ubuntu-sso-accounts-proxy.c ubuntu-sso-accounts-proxy.h: com.ubuntu.sso.UserMana
 	                            Accounts \
 	                 $<
 
-ubuntu-sso-credentials-proxy.c: ubuntu-sso-credentials-proxy.h
 ubuntu-sso-credentials-proxy.c ubuntu-sso-credentials-proxy.h: com.ubuntu.sso.CredentialsManagement.xml Makefile
 	$(AM_V_GEN) $(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
 	                 --generate-c-code ubuntu-sso-credentials-proxy \
