@@ -730,12 +730,6 @@ gs_plugin_get_supports_reviews (GsPlugin *plugin)
 	return TRUE;
 }
 
-const gchar *
-gs_plugin_get_review_auth (GsPlugin *plugin)
-{
-	return "ubuntuone";
-}
-
 static gboolean
 send_review (GsPlugin    *plugin,
              GsAppReview *review,

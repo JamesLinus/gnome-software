@@ -214,7 +214,6 @@ GsApp		*gs_plugin_loader_dedupe		(GsPluginLoader	*plugin_loader,
 void		 gs_plugin_loader_set_network_status    (GsPluginLoader *plugin_loader,
 							 gboolean        online);
 gboolean	 gs_plugin_loader_get_supports_reviews  (GsPluginLoader *plugin_loader);
-gchar		**gs_plugin_loader_get_review_auths     (GsPluginLoader *plugin_loader);
 
 G_END_DECLS
 
