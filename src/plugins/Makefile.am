@@ -134,17 +134,18 @@ libgs_plugin_local_ratings_la_LDFLAGS = -module -avoid-version
 libgs_plugin_local_ratings_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARN_CFLAGS)
 
 libgs_plugin_ubuntu_reviews_la_SOURCES =		\
-	gs-plugin-ubuntu-reviews.c			\
 	ubuntu-sso-accounts-proxy.c			\
 	ubuntu-sso-accounts-proxy.h			\
 	ubuntu-sso-credentials-proxy.c			\
-	ubuntu-sso-credentials-proxy.h
+	ubuntu-sso-credentials-proxy.h			\
+	gs-plugin-ubuntu-reviews.c
 libgs_plugin_ubuntu_reviews_la_LIBADD = $(GS_PLUGIN_LIBS) $(SOUP_LIBS) $(JSON_GLIB_LIBS) $(OAUTH_LIBS) $(SQLITE_LIBS)
 libgs_plugin_ubuntu_reviews_la_LDFLAGS = -module -avoid-version
 libgs_plugin_ubuntu_reviews_la_CFLAGS = $(GS_PLUGIN_CFLAGS) $(WARNINGFLAGS_C)
 
+ubuntu-sso-accounts-proxy.c: ubuntu-sso-accounts-proxy.h
 ubuntu-sso-accounts-proxy.c ubuntu-sso-accounts-proxy.h: com.ubuntu.sso.UserManagement.xml Makefile
-	$(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
+	$(AM_V_GEN) $(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
 	                 --generate-c-code ubuntu-sso-accounts-proxy \
 	                 --c-namespace UbuntuSSO \
 	                 --annotate 'com.ubuntu.sso.UserManagement' \
@@ -152,8 +153,9 @@ ubuntu-sso-accounts-proxy.c ubuntu-sso-accounts-proxy.h: com.ubuntu.sso.UserMana
 	                            Accounts \
 	                 $<
 
+ubuntu-sso-credentials-proxy.c: ubuntu-sso-credentials-proxy.h
 ubuntu-sso-credentials-proxy.c ubuntu-sso-credentials-proxy.h: com.ubuntu.sso.CredentialsManagement.xml Makefile
-	$(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
+	$(AM_V_GEN) $(GDBUS_CODEGEN) --interface-prefix com.ubuntu.sso \
 	                 --generate-c-code ubuntu-sso-credentials-proxy \
 	                 --c-namespace UbuntuSSO \
 	                 --annotate 'com.ubuntu.sso.CredentialsManagement' \
